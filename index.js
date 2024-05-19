@@ -27,8 +27,20 @@ function knightTravails (origin, dest) {
     }
     return neighbours;
   }
+  function checkIfPointIsOccupied (pt) {
+    const row = pt[0];
+    if (occupiedPoints[row] && occupiedPoints[row].indexOf(pt[1]) != -1) {
+        return true;
+    } else {
+        return false;
+    }
+  }
   const relativePts = [];
-  const allValidMoves = [];
+  const solutionMoves = [];
+  const occupiedPoints = [];
+  //occupiedPoints is like [  [0,1,2,3] , [3,4,7]  ] first index defines row
+  if (!occupiedPoints[dest[0]]) occupiedPoints[dest[0]] = [];
+  occupiedPoints[dest[0]].push(dest[1]);
 //   const destNeigh = getNeighbours(dest);
   relativePts.push([
     {
@@ -48,34 +60,45 @@ function knightTravails (origin, dest) {
       }
       let neighbours = getNeighbours(point.loc);
       for (neigh of neighbours) {
-        if (neigh !== point.loc) {
+        if (!checkIfPointIsOccupied(neigh)) {
             relativePts[levelIndex + 1].push (
                 {
                     lastLoc: [levelIndex, pointIndex], 
                     loc: neigh
                 }
             );
+            // console.log(relativePts);
+            if (!occupiedPoints[neigh[0]]) occupiedPoints[neigh[0]] = [];
+            occupiedPoints[neigh[0]].push(neigh[1]);
         }
       }
       pointIndex ++;
     }
     if (solution) {
-        console.log(relativePts);
+        // console.log(relativePts);
         break;
     }
     levelIndex ++;
   }
-  console.log(solution);
+//   console.log(occupiedPoints);
+//   console.log(solution);
   let nowLoc = solution;
+  solutionMoves.push(origin);
   while (true) {
     let nowMove = relativePts[nowLoc[0]][nowLoc[1]];
-    console.log(nowMove);
-    allValidMoves.push(nowMove.loc);
+    // console.log(nowMove);
+    solutionMoves.push(nowMove.loc);
     if (nowLoc[0] !== 0) {
         nowLoc = nowMove.lastLoc;
     } else {
         break;
     }
   }
-  return allValidMoves;
+  //to show in console
+  console.log(`=> You made it in ${solutionMoves.length-1} moves!  Here's your path:`);
+  for (move of solutionMoves) {
+    console.log(`  [${move}]`);
+  }
+
+  return solutionMoves;
 }
